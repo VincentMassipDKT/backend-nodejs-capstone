@@ -2,8 +2,8 @@
 name: User Story
 about: Template for User Story creation
 title: "[US] "
-labels: ''
-assignees: ''
+labels: new
+assignees: VincentMassipDKT
 
 ---
 
