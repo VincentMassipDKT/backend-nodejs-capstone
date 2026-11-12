@@ -43,13 +43,23 @@ router.get('/', async (req, res, next) => {
 // Add a new item
 router.post('/', {Step 3: Task 6 insert code here}, async(req, res,next) => {
     try {
+        //Step 3: Task 1: Connect to MongoDB
+        const db = await connectToDatabase();
+        //Step 3: Task 2: Use the collection() method to retrieve the secondChanceItems collection
+        const collection = db.collection(`${process.env.MONGO_COLLECTION}`);
+        //Step 3: Task 3: Create a new secondChanceItem from the request body
+        const secondChanceItem = req.body;
+        //Step 3: Task 4: Get the last id, increment it by 1, and set it to the new secondChanceItem
+        const lastSecondChanceItem = await collection.find({}).sort({ id: -1 }).limit(1).toArray();
+        secondChanceItem.id = lastSecondChanceItem.length > 0 ? lastSecondChanceItem[0].id + 1 : 1;
+        //Step 3: Task 5: Set the current date to the new item
+        const added_date = Math.floor(new Date().getTime() / 1000);
+        secondChanceItem.added_date = added_date;
 
-        //Step 3: task 1 - insert code here
-        //Step 3: task 2 - insert code here
-        //Step 3: task 3 - insert code here
-        //Step 3: task 4 - insert code here
-        //Step 3: task 5 - insert code here
-        res.status(201).json(secondChanceItem.ops[0]);
+
+
+
+        
     } catch (e) {
         next(e);
     }
