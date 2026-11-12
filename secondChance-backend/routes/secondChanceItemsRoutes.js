@@ -41,7 +41,7 @@ router.get('/', async (req, res, next) => {
 });
 
 // Add a new item
-router.post('/', upload.single('file'), async(req, res,next) => {
+router.post('/', upload.single('file'), async(req, res, next) => {
     try {
         //Step 3: Task 1: Connect to MongoDB
         const db = await connectToDatabase();
@@ -80,7 +80,8 @@ router.get('/:id', async (req, res, next) => {
         //Step 4: Task 2: Access the MongoDB collection
         const collection = db.collection(`${process.env.MONGO_COLLECTION}`);
         //Step 4: Task 3: Find a specific secondChanceItem by ID
-        const secondChanceItem = collection.findOne({id: id});
+        const id = parseInt(req.params.id, 10);
+        const secondChanceItem = await collection.findOne({id: id});
         //Step 4: Task 4: Return the secondChanceItem as a JSON object. Return an error message if the item is not found.
         if (secondChanceItem) {
             res.status(200).json(secondChanceItem);
@@ -92,14 +93,50 @@ router.get('/:id', async (req, res, next) => {
     }
 });
 
-// Update and existing item
-router.put('/:id', async(req, res,next) => {
+// Update an existing item
+router.put('/:id', async(req, res, next) => {
     try {
-        //Step 5: task 1 - insert code here
-        //Step 5: task 2 - insert code here
-        //Step 5: task 3 - insert code here
-        //Step 5: task 4 - insert code here
-        //Step 5: task 5 - insert code here
+        //Step 5: Task 1: Connect to MongoDB
+        const db = await connectToDatabase();
+        //Step 5: Task 2: Use the collection() method to retrieve the secondChanceItems collection
+        const collection = db.collection(`${process.env.MONGO_COLLECTION}`);
+        //Step 5: Task 3: Check if the secondChanceItem exists and send an appropriate message if it doesn't exist
+        const id = parseInt(req.params.id, 10);
+        const qry = {id: id};
+        const secondChanceItem = collection.findOne(qry);
+        if (!secondChanceItem) {
+            res.status(404).send(`Can't find any item with id [${id}]`);
+        };
+        //Step 5: Task 4: Update the item's specific attributes.
+        //category, condition, age_days, description, 
+        //age_years (Calculated to one decimal place from age_days), 
+        //updatedAt (Calculated from the current date)
+        const updatedSecondChanceItem = req.body;
+        const updatedCategory = updatedSecondChanceItem.category;
+        if (updatedCategory) {
+            secondChanceItem.category = updatedCategory;
+        };
+        const updatedCondition = updatedSecondChanceItem.condition;
+        if (updatedCondition) {
+            secondChanceItem.condition = updatedCondition;
+        };
+        const updatedDescription = updatedSecondChanceItem.description;
+        if (updatedDescription) {
+            secondChanceItem.description = updatedDescription;
+        };
+        const updatedAgeDays = updatedSecondChanceItem.age_days;
+        if (updatedAgeDays) {
+            secondChanceItem.age_days = updatedAgeDays;
+            secondChanceItem.age_years = Number((updatedAgeDays/365).toFixed(1));;
+        };
+        secondChanceItem.updatedAt = Math.floor(new Date().getTime() / 1000);
+        const updateResult = collection.updateOne(qry, { $set: secondChanceItem }, { returnDocument: 'after' } );
+        //Step 5: Task 5: Send confirmation
+        if (updateResult) {
+            res.status(200).send(`Item [${id}] successfully updated`);
+        } else {
+            res.status(500).send(`Error in updating item [${id}]`);
+        };
     } catch (e) {
         next(e);
     }
