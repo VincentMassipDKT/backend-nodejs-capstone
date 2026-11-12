@@ -80,8 +80,9 @@ router.get('/:id', async (req, res, next) => {
         //Step 4: Task 2: Access the MongoDB collection
         const collection = db.collection(`${process.env.MONGO_COLLECTION}`);
         //Step 4: Task 3: Find a specific secondChanceItem by ID
-        const id = parseInt(req.params.id, 10);
-        const secondChanceItem = await collection.findOne({id: id});
+        const id = req.params.id;
+        const qry = { id: id };
+        const secondChanceItem = await collection.findOne(qry);
         //Step 4: Task 4: Return the secondChanceItem as a JSON object. Return an error message if the item is not found.
         if (secondChanceItem) {
             res.status(200).json(secondChanceItem);
@@ -101,8 +102,8 @@ router.put('/:id', async(req, res, next) => {
         //Step 5: Task 2: Use the collection() method to retrieve the secondChanceItems collection
         const collection = db.collection(`${process.env.MONGO_COLLECTION}`);
         //Step 5: Task 3: Check if the secondChanceItem exists and send an appropriate message if it doesn't exist
-        const id = parseInt(req.params.id, 10);
-        const qry = {id: id};
+        const id = req.params.id;
+        const qry = { id: id };
         const secondChanceItem = collection.findOne(qry);
         if (!secondChanceItem) {
             res.status(404).send(`Can't find any item with id [${id}]`);
@@ -151,8 +152,8 @@ router.delete('/:id', async(req, res, next) => {
         //Step 6: Task 2: Access the MongoDB collection
         const collection = db.collection(`${process.env.MONGO_COLLECTION}`);
         //Step 6: Task 3: Find a specific secondChanceItem by ID using the collection.fineOne() method and send an appropriate message if it doesn't exist
-        const id = parseInt(req.params.id, 10);
-        const qry = {id: id};
+        const id = req.params.id;
+        const qry = { id: id };
         const secondChanceItem = await collection.findOne(qry);
         if (!secondChanceItem) {
             res.status(404).send(`Can't find any item with id [${id}]`);
