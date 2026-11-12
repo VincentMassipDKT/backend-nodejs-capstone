@@ -36,19 +36,17 @@ app.post('/sentiment', async (req, res) => {
     try {
         const analysisResult = analyzer.getSentiment(sentence.split(' '));
 
-        let sentiment = "neutral";
-
         // Task 5: set sentiment to negative or positive based on score rules
         // Task 5: Process the response from Natural by adding a sentiment of 'positive', 'negative' or 'neutral' based on the scores returned
         // If the score is < 0, the sentiment should be negative
         // If the score is between 0 and 0.33, it should be neutral
         // Otherwise, the sentiment should be positive
+        let sentiment = "neutral";
+
         if (analysisResult < 0) {
             sentiment = "negative";
         } else if (analysisResult > 0.33) {
             sentiment = "positive";
-        } else {
-            sentiment = "neutral";
         }
 
         // Logging the result
