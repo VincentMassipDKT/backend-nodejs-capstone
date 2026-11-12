@@ -4,10 +4,10 @@ const axios = require('axios');
 const logger = require('./logger');
 const expressPino = require('express-pino-logger')({ logger });
 // Task 1: import the natural library
-const natural = {{insert code here}}
+const natural = require('natural');
 
 // Task 2: initialize the express server
-{{insert code here}}
+const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(express.json());
@@ -15,10 +15,11 @@ app.use(expressPino);
 
 // Define the sentiment analysis route
 // Task 3: create the POST /sentiment analysis
-app.{{insert method here}}('{{insert route here}}', async (req, res) => {
+app.post('/sentiment', async (req, res) => {
 
     // Task 4: extract the sentence parameter
-    const { sentence } = {{insert code here}};
+    //Use the query object of the request to obtain the sentence. The req.query object contains a set of key-value pairs representing the query parameters of the URL. The req.query code will get the query object. Use the destructuring assignment to get the value directly.
+    const { sentence } = req.body;
 
 
     if (!sentence) {
@@ -38,17 +39,27 @@ app.{{insert method here}}('{{insert route here}}', async (req, res) => {
         let sentiment = "neutral";
 
         // Task 5: set sentiment to negative or positive based on score rules
-        {{insert code here}}
+        // Task 5: Process the response from Natural by adding a sentiment of 'positive', 'negative' or 'neutral' based on the scores returned
+        // If the score is < 0, the sentiment should be negative
+        // If the score is between 0 and 0.33, it should be neutral
+        // Otherwise, the sentiment should be positive
+        if (analysisResult < 0) {
+            sentiment = "negative";
+        } else if (analysisResult > 0.33) {
+            sentiment = "positive";
+        } else {
+            sentiment = "neutral";
+        }
 
         // Logging the result
         logger.info(`Sentiment analysis result: ${analysisResult}`);
 
         // Task 6: send a status code of 200 with both sentiment score and the sentiment txt in the format { sentimentScore: analysisResult, sentiment: sentiment }
-        {{insert code here}}
+        return res.status(200).json({ sentimentScore: analysisResult, sentiment: sentiment });
     } catch (error) {
         logger.error(`Error performing sentiment analysis: ${error}`);
         // Task 7: if there is an error, return a HTTP code of 500 and the json {'message': 'Error performing sentiment analysis'}
-        {{insert code here}}
+        return res.status(500).json({ message: 'Error performing sentiment analysis' });
     }
 });
 
