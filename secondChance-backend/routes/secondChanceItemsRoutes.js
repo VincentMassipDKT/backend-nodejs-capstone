@@ -106,6 +106,7 @@ router.put('/:id', async(req, res, next) => {
         const secondChanceItem = collection.findOne(qry);
         if (!secondChanceItem) {
             res.status(404).send(`Can't find any item with id [${id}]`);
+            return;
         };
         //Step 5: Task 4: Update the item's specific attributes.
         //category, condition, age_days, description, 
@@ -143,12 +144,27 @@ router.put('/:id', async(req, res, next) => {
 });
 
 // Delete an existing item
-router.delete('/:id', async(req, res,next) => {
+router.delete('/:id', async(req, res, next) => {
     try {
-        //Step 6: task 1 - insert code here
-        //Step 6: task 2 - insert code here
-        //Step 6: task 3 - insert code here
-        //Step 6: task 4 - insert code here
+        //Step 6: Task 1: Connect to MongoDB
+        const db = await connectToDatabase();
+        //Step 6: Task 2: Access the MongoDB collection
+        const collection = db.collection(`${process.env.MONGO_COLLECTION}`);
+        //Step 6: Task 3: Find a specific secondChanceItem by ID using the collection.fineOne() method and send an appropriate message if it doesn't exist
+        const id = parseInt(req.params.id, 10);
+        const qry = {id: id};
+        const secondChanceItem = await collection.findOne(qry);
+        if (!secondChanceItem) {
+            res.status(404).send(`Can't find any item with id [${id}]`);
+            return;
+        };
+        //Step 6: Task 4: Delete the object and send an appropriate message
+        const deleteResult = await collection.deleteOne(qry);
+        if (deleteResult.deletedCount === 1) {
+            res.status(200).send(`Item [${id}] successfully deleted`);
+        } else {
+            res.status(500).send(`Error in deleting item [${id}]`);
+        };
     } catch (e) {
         next(e);
     }
