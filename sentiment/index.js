@@ -19,7 +19,7 @@ app.post('/sentiment', async (req, res) => {
 
     // Task 4: extract the sentence parameter
     //Use the query object of the request to obtain the sentence. The req.query object contains a set of key-value pairs representing the query parameters of the URL. The req.query code will get the query object. Use the destructuring assignment to get the value directly.
-    const { sentence } = req.body;
+    const { sentence } = req.query;
 
 
     if (!sentence) {
