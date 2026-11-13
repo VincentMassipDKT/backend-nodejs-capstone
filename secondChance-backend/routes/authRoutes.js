@@ -5,7 +5,7 @@ const logger = require('../logger')
 const bcryptjs = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 // {Insert it along with other imports} Task 1: Use the `body`,`validationResult` from `express-validator` for input validation
-const { body, validationResult } = require('express-validator')
+const { validationResult } = require('express-validator')
 
 router.post('/register', async (req, res) => {
   try {
@@ -113,4 +113,4 @@ router.put('/update', async (req, res) => {
   }
 })
 
-module.exports = router;
+module.exports = router
