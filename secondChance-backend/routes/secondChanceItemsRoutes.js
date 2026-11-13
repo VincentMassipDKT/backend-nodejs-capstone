@@ -53,8 +53,8 @@ router.post('/', upload.single('file'), async(req, res, next) => {
         const lastSecondChanceItem = await collection.find({}).sort({ id: -1 }).limit(1).toArray();
         secondChanceItem.id = lastSecondChanceItem.length > 0 ? lastSecondChanceItem[0].id + 1 : 1;
         //Step 3: Task 5: Set the current date to the new item
-        const added_date = Math.floor(new Date().getTime() / 1000);
-        secondChanceItem.added_date = added_date;
+        const date_added = Math.floor(new Date().getTime() / 1000);
+        secondChanceItem.date_added = date_added;
         //Step 3: Task 6: Add the secondChanceItem to the database
         const result = await collection.insertOne(secondChanceItem);
         //Step 3: Task 7: Upload the image to the images directory
