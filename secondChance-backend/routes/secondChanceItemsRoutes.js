@@ -66,7 +66,7 @@ router.post('/', upload.single('file'), async(req, res, next) => {
             });
         }
 
-        res.status(201).json(result.ops[0]);
+        res.status(201).json({ insertedId: result.insertedId });
     } catch (e) {
         next(e);
     }
