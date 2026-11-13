@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const connectToDatabase = require('../models/db');
 const logger = require('../logger');
-const bcrypt = require('bcrypt');
+const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 
@@ -19,7 +19,8 @@ router.post('/register', async (req, res) => {
             return res.status(400).send('User already exists');
         }
 		// Task 4: Create a hash to encrypt the password so that it is not readable in the database
-        const hashedPassword = await bcrypt.hash(req.body.password, 10);
+        const salt = await bcryptjs.genSalt(10);
+        const hashedPassword = await bcryptjs.hash(req.body.password, salt);
         // Task 5: Insert the user into the database
         const result = await usersCollection.insertOne({
             email: email,
