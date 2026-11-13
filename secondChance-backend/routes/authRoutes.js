@@ -4,6 +4,8 @@ const connectToDatabase = require('../models/db');
 const logger = require('../logger');
 const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+// {Insert it along with other imports} Task 1: Use the `body`,`validationResult` from `express-validator` for input validation
+const { body, validationResult } = require('express-validator');
 
 
 router.post('/register', async (req, res) => {
@@ -81,6 +83,41 @@ router.post('/login', async (req, res) => {
 
     }
 });
+
+
+router.put('/update', async (req, res) => {
+    // Task 2: Validate the input using `validationResult` and return an appropriate message if you detect an error
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+        
+    try {
+        // Task 3: Check if `email` is present in the header and throw an appropriate error message if it is not present
+        const email = req.header('email');
+        if (!email) {
+            return res.status(400).send('Email is required in the header');
+        }
+        // Task 4: Connect to MongoDB
+        const db = await connectToDatabase();
+		// Task 5: Find the user credentials in database
+        const existingUser = await db.collection(`users`).findOne({ email: email });
+        if (!existingUser) {
+            return res.status(404).send('User not found');
+        }
+		// Task 6: Update the user credentials in the database
+        existingUser.updatedAt = new Date();
+        const updatedUser = await db.collection(`users`).updateOne({ email: email }, { $set: existingUser }, { returnDocument: 'after' });
+		// Task 7: Create JWT authentication with `user._id` as a payload using the secret key from the .env file
+        const authtoken = jwt.sign({ user: { id: existingUser._id } }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        
+        res.json({authtoken});
+    } catch (e) {
+         return res.status(500).send('Internal server error');
+
+    }
+});
+
 
 
 module.exports = router;
