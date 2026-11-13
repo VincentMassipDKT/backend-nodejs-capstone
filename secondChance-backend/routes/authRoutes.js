@@ -15,7 +15,7 @@ router.post('/register', async (req, res) => {
     const usersCollection = db.collection('users')
     // Task 3: Check if user credentials already exists in the database and throw an error if they do
     const { email } = req.body
-    const existingUser = await usersCollection.findOne({ email: email })
+    const existingUser = await usersCollection.findOne({ email })
     if (existingUser) {
       return res.status(400).send('User already exists')
     }
@@ -24,20 +24,20 @@ router.post('/register', async (req, res) => {
     const hashedPassword = await bcryptjs.hash(req.body.password, salt)
     // Task 5: Insert the user into the database
     const result = await usersCollection.insertOne({
-      email: email,
+      email,
       firstName: req.body.firstName,
       lastName: req.body.lastName,
       password: hashedPassword,
       createdAt: new Date()
     })
     // Task 6: Create JWT authentication if passwords match with user._id as payload
-    const token = jwt.sign({ user: { id: result.insertedId } }, process.env.JWT_SECRET, { expiresIn: '1h' })
+    const authtoken = jwt.sign({ user: { id: result.insertedId } }, process.env.JWT_SECRET, { expiresIn: '1h' })
     // Task 7: Log the successful registration using the logger
     logger.info(`User registered with email: ${email}`)
     // Task 8: Return the user email and the token as a JSON
     return res.status(201).json({
-      email: email,
-      token: token
+      email,
+      authtoken
     })
   } catch (e) {
     return res.status(500).send('Internal server error')
@@ -52,7 +52,7 @@ router.post('/login', async (req, res) => {
     const usersCollection = db.collection('users')
     // Task 3: Check for user credentials in database
     const { email } = req.body
-    const existingUser = await usersCollection.findOne({ email: email })
+    const existingUser = await usersCollection.findOne({ email })
     if (existingUser) {
       // Task 4: Check if the password matches the encrypted password and send appropriate message on mismatch
       const isPasswordValid = await bcryptjs.compare(req.body.password, existingUser.password)
@@ -66,9 +66,9 @@ router.post('/login', async (req, res) => {
       const authtoken = jwt.sign({ user: { id: existingUser._id } }, process.env.JWT_SECRET, { expiresIn: '1h' })
       logger.info(`User logged in with email: ${userEmail}`)
       return res.status(200).json({
-        userEmail: userEmail,
-        userName: userName,
-        authtoken: authtoken
+        userEmail,
+        userName,
+        authtoken
       })
     } else {
       // Task 7: Send appropriate message if the user is not found
@@ -97,13 +97,13 @@ router.put('/update', async (req, res) => {
     // Task 4: Connect to MongoDB
     const db = await connectToDatabase()
     // Task 5: Find the user credentials in database
-    const existingUser = await db.collection('users').findOne({ email: email })
+    const existingUser = await db.collection('users').findOne({ email })
     if (!existingUser) {
       return res.status(404).send('User not found')
     }
     // Task 6: Update the user credentials in the database
     existingUser.updatedAt = new Date()
-    const updatedUser = await db.collection('users').updateOne({ email: email }, { $set: existingUser }, { returnDocument: 'after' })
+    const updatedUser = await db.collection('users').updateOne({ email }, { $set: existingUser }, { returnDocument: 'after' })
     // Task 7: Create JWT authentication with `user._id` as a payload using the secret key from the .env file
     const authtoken = jwt.sign({ user: { id: existingUser._id } }, process.env.JWT_SECRET, { expiresIn: '1h' })
 
