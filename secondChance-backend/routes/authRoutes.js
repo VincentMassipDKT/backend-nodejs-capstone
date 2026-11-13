@@ -28,7 +28,7 @@ router.post('/register', async (req, res) => {
       firstName: req.body.firstName,
       lastName: req.body.lastName,
       password: hashedPassword,
-      createdAt: new Date(),
+      createdAt: new Date()
     })
     // Task 6: Create JWT authentication if passwords match with user._id as payload
     const token = jwt.sign({ user: { id: result.insertedId } }, process.env.JWT_SECRET, { expiresIn: '1h' })
@@ -50,7 +50,7 @@ router.post('/login', async (req, res) => {
     const db = await connectToDatabase()
     // Task 2: Access MongoDB `users` collection
     const usersCollection = db.collection('users')
-	// Task 3: Check for user credentials in database
+    // Task 3: Check for user credentials in database
     const { email } = req.body
     const existingUser = await usersCollection.findOne({ email: email })
     if (existingUser) {
@@ -90,24 +90,24 @@ router.put('/update', async (req, res) => {
 
   try {
     // Task 3: Check if `email` is present in the header and throw an appropriate error message if it is not present
-    const email = req.header('email');
+    const email = req.header('email')
     if (!email) {
       return res.status(400).send('Email is required in the header')
     }
     // Task 4: Connect to MongoDB
     const db = await connectToDatabase()
     // Task 5: Find the user credentials in database
-    const existingUser = await db.collection(`users`).findOne({ email: email })
+    const existingUser = await db.collection('users').findOne({ email: email })
     if (!existingUser) {
       return res.status(404).send('User not found')
     }
     // Task 6: Update the user credentials in the database
     existingUser.updatedAt = new Date()
-    const updatedUser = await db.collection(`users`).updateOne({ email: email }, { $set: existingUser }, { returnDocument: 'after' })
+    const updatedUser = await db.collection('users').updateOne({ email: email }, { $set: existingUser }, { returnDocument: 'after' })
     // Task 7: Create JWT authentication with `user._id` as a payload using the secret key from the .env file
     const authtoken = jwt.sign({ user: { id: existingUser._id } }, process.env.JWT_SECRET, { expiresIn: '1h' })
 
-    res.json({authtoken})
+    return res.json({ updatedUser, authtoken })
   } catch (e) {
     return res.status(500).send('Internal server error')
   }
