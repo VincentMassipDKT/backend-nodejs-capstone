@@ -53,20 +53,29 @@ router.post('/login', async (req, res) => {
 		// Task 3: Check for user credentials in database
         const { email } = req.body;
         const existingUser = await usersCollection.findOne({ email: email });
-		// Task 4: Check if the password matches the encrypted password and send appropriate message on mismatch
-        const isPasswordValid = await bcryptjs.compare(req.body.password, existingUser.password);
-        if (!isPasswordValid) {
-            return res.status(401).send('Invalid password');
-        };
-        // Task 5: Fetch user details from a database
-        const userName = `${existingUser.firstName} ${existingUser.lastName}`;
-        const userEmail = existingUser.email;
-		// Task 6: Create JWT authentication if passwords match with user._id as payload
-        const authtoken = jwt.sign({ user: { id: existingUser._id } }, process.env.JWT_SECRET, { expiresIn: '1h' });
-		// Task 7: Send appropriate message if the user is not found
-        if (!existingUser) {
-            return res.status(404).send('User not found');
-        };
+        if (existingUser) {
+            // Task 4: Check if the password matches the encrypted password and send appropriate message on mismatch
+            const isPasswordValid = await bcryptjs.compare(req.body.password, existingUser.password);
+            if (!isPasswordValid) {
+                return res.status(401).send('Invalid password');
+            };
+            // Task 5: Fetch user details from a database
+            const userName = `${existingUser.firstName} ${existingUser.lastName}`;
+            const userEmail = existingUser.email;
+            // Task 6: Create JWT authentication if passwords match with user._id as payload
+            const authtoken = jwt.sign({ user: { id: existingUser._id } }, process.env.JWT_SECRET, { expiresIn: '1h' });
+            logger.info(`User logged in with email: ${userEmail}`);
+            return res.status(200).json({
+                userName: userName,
+                userEmail: userEmail,
+                token: authtoken
+            });
+        } else {
+            // Task 7: Send appropriate message if the user is not found
+            if (!existingUser) {
+                return res.status(404).send('User not found');
+            };
+        }
     } catch (e) {
          return res.status(500).send('Internal server error');
 
