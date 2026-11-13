@@ -24,10 +24,13 @@ router.post('/register', async (req, res) => {
         // Task 5: Insert the user into the database
         const result = await usersCollection.insertOne({
             email: email,
-            password: hashedPassword
+            firstName: req.body.firstName,
+            lastName: req.body.lastName,
+            password: hashedPassword,
+            createdAt: new Date(),
         });
 		// Task 6: Create JWT authentication if passwords match with user._id as payload
-        const token = jwt.sign({ id: result.insertedId }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ user: { id: result.insertedId } }, process.env.JWT_SECRET, { expiresIn: '1h' });
 		// Task 7: Log the successful registration using the logger
         logger.info(`User registered with email: ${email}`);
 		// Task 8: Return the user email and the token as a JSON
