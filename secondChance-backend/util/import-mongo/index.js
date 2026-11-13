@@ -47,5 +47,5 @@ async function loadData () {
 loadData()
 
 module.exports = {
-    loadData
-  }
+  loadData
+}
