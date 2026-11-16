@@ -103,6 +103,7 @@ router.put('/update', async (req, res) => {
     }
     // Task 6: Update the user credentials in the database
     existingUser.updatedAt = new Date()
+    existingUser.firstName = req.body.firstName || existingUser.firstName
     const updatedUser = await db.collection('users').updateOne({ email }, { $set: existingUser }, { returnDocument: 'after' })
     // Task 7: Create JWT authentication with `user._id` as a payload using the secret key from the .env file
     const authtoken = jwt.sign({ user: { id: existingUser._id } }, process.env.JWT_SECRET, { expiresIn: '1h' })
